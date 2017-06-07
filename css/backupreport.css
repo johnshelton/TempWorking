@@ -1,0 +1,41 @@
+BODY {
+    background-color: White;
+}
+
+#myTable {
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+    border-collapse: collapse;
+}
+
+#myTable TH {
+    border-width: 1px;
+    padding: 5px 10px 5px 10px;
+    border-style: solid;
+    border-color: black;
+    background-color: royalblue
+}
+
+#myTable TD {
+    border-width: 1px;
+    padding: 5px 10px 5px 10px;
+    border-style: solid;
+    border-color: black;
+    background-color: gainsboro
+}
+
+#myTable tr:hover {
+  background-color: gray;
+}
+
+#myInput {
+    background-image: url('http://rdc-shelly-01.wfm.wegmans.com/backupreports/css/searchicon.png');
+    background-position: 10px 10px;
+    background-repeat: no-repeat;
+    width: 70%;
+    font-size: 16px;
+    padding: 12px 20px 12px 40px;
+    border: 1px solid black;
+    margin-bottom: 12px;
+}
