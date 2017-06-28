@@ -37,7 +37,6 @@ $ExecutionDate = Get-Date
 $ExecutionUser = $env:USERNAME
 $ExecutionLog = "Script was run on $ExecutionHost by $ExecutionUser on $ExecutionStamp"
 #
-#
 # Define Output Variables
 #
 $ExecutionStamp = Get-Date -Format yyyyMMdd_HH-mm-ss
@@ -63,22 +62,6 @@ IF($ArchivePathExists -eq $False)
   }
 $SearchIconPath = $path + "css\searchicon.png"
 $BackupReportOutputPath = $HTMLFileOutputPath + "index" + $FileExt
-<#
-# HTML Format Settings
-#
-$HTMLFormat = "<Style>"
-$HTMLFormat = $HTMLFormat + "BODY{background-color:White;}"
-$HTMLFormat = $HTMLFormat + "TABLE{border-width: 1px;border-style: solid;border-color: black;border-collapse: collapse;}"
-$HTMLFormat = $HTMLFormat + "TH{border-width: 1px;padding: 5px 10px 5px 10px;border-style: solid;border-color: black;background-color:royalblue}"
-$HTMLFormat = $HTMLFormat + "TD{border-width: 1px;padding: 5px 10px 5px 10px;border-style: solid;border-color: black;background-color:gainsboro}"
-$HTMLFormat = $HTMLFormat + "#myInput {background-image: url('$SearchIconPath'); background-position: 0px 0px; background-repeat: no-repeat; width: 70%; font-size: 16px; padding: 12px 20px 12px 40px; border: 1px solid #ddd; margin-bottom: 12px;}"
-$HTMLFormat = $HTMLFormat + "</style>"
-#>
-#
-# Load VMWare PSSnapin
-#
-# Add-PSSnapin VMWare.VimAutomation.Core
-#
 [Hashtable]$VCenterAppServerPath = @{ "RDC-VMVC-01" = "\\rdc-vmvc-app-01\c`$\Program Files\NetApp\Virtual Storage Console\smvi\server\repository\scheduledBackups.xml"; "BDC-VMVC-01" = "\\bdc-vmvc-app-01\c`$\Program Files\NetApp\Virtual Storage Console\smvi\server\repository\scheduledBackups.xml"}
 [Hashtable]$ReportNames = @{"RPT_BACKUPJOBDETAIL" = "NetApp Backup Job Detail"; "RPT_VMBACKUPJOBDETAIL" = "Backups by VM"; "RPT_VMSNAPMIRRORBACKUPJOBDETAIL" = "SnapMirror Backups by VM"; "RPT_VMSWITHNOBACKUPS" = "VMs with no backups found"; "RPT_VMWAREDATASTOREBACKUPJOBS" = "Backup Jobs by Datastore"; "RPT_VMWAREDATASTORESNAPMIRRORJOBS" = "SnapMirror Jobs by Datastore"; "RPT_VMWAREDATASTORENOJOBS" = "Datastores with NO Backup or SnapMirror Jobs"}
 #
@@ -107,6 +90,8 @@ While ($VMWareModuleInstalledLoop -lt "4" -and $VMWareModuleInstalled -ne $True)
   $VMWareModuleInstalledLoop ++
   If ($VMWareModuleInstalledLoop -ge "4") {Write-host "VMWare Module is not installed and the auto installation failed. Manual intervention is needed"; Exit}
 }
+#
+# Start Processing through Servers
 #
 ForEach($VCenter in $VCenters){
   # Write-Host "Connecting to VCenter Server $VCenter"
@@ -305,8 +290,6 @@ $VMBackupDetailHTML = $VMBackupDetailHTML -replace "<table>", "<table id=`"myTab
 $VMBackupDetailHTML = $VMBackupDetailHTML -replace "file:///c:/inetpub/wwwroot/test/backupreports/css/backupreport.css", $CSSPath
 $VMBackupDetailHTML | Out-File -FilePath $OutputPath
 #
-#$VMBackupDetail | ConvertTo-Html -Head $HTMLFormat -Title "VM Backup Job Report for $VCentersString as of $ExecutionStamp" -Body "<H2>Backup Job Report for $VCentersString as of $ExecutionStamp</H2>" | Out-String
-#
 $OutputPath = $HTMLFileOutputPath + "rpt_vmsnapmirrorbackupjobdetail" + $FileExt
 $VMSnapMirrorBackupDetailHTML = $VMSnapMirrorBackupDetail | Sort-Object VM_VCenter, VM_Name | ConvertTo-Html -CssUri $CSSHTMLPath  -Title "VM SnapMirror Backup Job Report for $VCentersString as of $ExecutionStamp" -Body "<center><img src=`"$WegmansLogoPath`" alt=`"Wegmans Logo`"><p><H2>VM SnapMirror Backup Job Report for $VCentersString as of $ExecutionStamp</H2><p><input type=`"text`" id=`"myInput`" onkeyup=`"myFunction()`" placeholder=`"Search for VM names..`" title=`"Type in a VM name`"></center> <script>function myFunction() {  var input, filter, table, tr, td, i;  input = document.getElementById(`"myInput`");  filter = input.value.toUpperCase();  table = document.getElementById(`"myTable`");  tr = table.getElementsByTagName(`"tr`");  for (i = 0; i < tr.length; i++) {    td = tr[i].getElementsByTagName(`"td`")[1];    if (td) {      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {        tr[i].style.display = `"`";      } else {        tr[i].style.display = `"none`";      }    }        }}</script><center>" -PostContent "<p><a href=`"$path`">Current Reports</a><p><hr>This site is maintained by TechWintel.  Created by John Shelton.  The script that created this page and the reports was ran on $ExecutionHost by $ExecutionUser ."
 $VMSnapMirrorBackupDetailHTML = $VMSnapMirrorBackupDetailHTML -replace "<table>", "<table id=`"myTable`">"
@@ -374,8 +357,6 @@ $TOCHTML += "`n</table>"
 $ArchiveReports = Get-ChildItem $HTMLFileOutputArchivePath -Directory
 $ArchiveReports = $ArchiveReports | Sort-Object $_.name -Descending
 ForEach ($ArchiveReport in $ArchiveReports){
-  # $TempArchiveReportName = $ArchiveReport.Name
-  # $TempArchiveReportFileName = $ArchiveReport.Name
   $TempArchiveReportDate = $ArchiveReport.Name.Substring(0,8).Insert(4,'-').Insert(7,'-')
   $TempArchiveReportTime = $ArchiveReport.Name.Substring(9)
   $TempArchiveReportFilePath = $ArchiveReport.Name + "/index.html"
